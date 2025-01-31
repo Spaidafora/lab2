@@ -9,6 +9,9 @@
 //This program needs some refactoring.
 //We will do this in class together.
 //+hi
+//to-do list
+// 1/31/25 add some text
+//
 //
 #include <iostream>
 #include <cstdlib>
@@ -23,6 +26,7 @@ using namespace std;
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include "fonts.h"
 
 //some structures
 
@@ -60,9 +64,14 @@ void render(void);
 
 //Global variables for the box movement since we moved from render to physics... 
 static float w = 20.0f;
-static float dir = 0.3f;
-static float pos[2] = { 0.0f+w, g.yres/2.0f };
-//static int boxColor[3] = {100, 120, 220}; // Initial box color
+static float dir_x = 0.3f;  // x dir speed
+static float dir_y = 0.20f;  // y dir speed
+static float pos[2] = { 0.8f+w, g.yres/2.0f };
+static int boxColor[3] = {100, 120, 220}; // Initial box color
+
+
+
+
 
 
 int main()
@@ -83,7 +92,10 @@ int main()
 		render();
 		x11.swapBuffers();
 		usleep(200); // if not here pc will use 100% of cup.. here makes diff?
-	}
+		
+
+	} 
+	cleanup_fonts();
 	return 0;
 }
 
@@ -134,7 +146,7 @@ void X11_wrapper::set_title()
 {
 	//Set the window title bar.
 	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "3350 Lab-1");
+	XStoreName(dpy, win, "3350 Lab-2 Esc to Exit");
 }
 
 bool X11_wrapper::getXPending()
@@ -250,6 +262,8 @@ void init_opengl(void)
 	glOrtho(0, g.xres, 0, g.yres, -1, 1);
 	//Set the screen background color
 	glClearColor(1.0, 0.65, 0.0, 1.0); // Orange background
+	glEnable(GL_TEXTURE_2D);
+	initialize_fonts();
 	
 }
 
@@ -260,27 +274,69 @@ void physics()
 	//static float pos[2] = { 0.0f+w, g.yres/2.0f };
 
 	//No physics yet.
-    pos[0] += dir;
+    // Update x position
+    pos[0] += dir_x;
     if (pos[0] >= (g.xres-w)) {
         pos[0] = (g.xres-w);
-        dir = -dir;
-		
+        dir_x = -dir_x;  // Reverse x direction
+		 boxColor[0] = 200;  
+        boxColor[1] = 000;  
+        boxColor[2] = 50;    
     }
     if (pos[0] <= w) {
         pos[0] = w;
-        dir = -dir;
+        dir_x = -dir_x; 
+		boxColor[0] = 0;    
+        boxColor[1] = 050;  
+        boxColor[2] = 200;   
+    }
+	pos[1] += dir_y;
+	
+	if (pos[1] >= (g.yres-w)) {
+        pos[1] = (g.yres-w); //wall
+        dir_y = -dir_y;  // Reverse y direction
+		// Yellow for y wall
+        boxColor[0] = 0;  
+        boxColor[1] = 0;  
+        boxColor[2] = 155;    
+
+    }
+    if (pos[1] <= w) {
+        pos[1] = w;
+        dir_y = -dir_y;  
+		boxColor[0] = 255;  
+        boxColor[1] = 0;  
+        boxColor[2] = 050;   
     }
 
+	
+
+
+
+
+ 
+	 
+   
 }
 
 void render()// always at bottom  //below should be at physics 
 { 
 	
 	//clear the window
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT); // here
+
+	Rect r;
+	
+	r.bot = g.yres - 20; //chec removed from gl.yres
+	r.left = 10;
+	r.center = 0;
+	ggprint8b(&r, 16, 0x00ff0000, "3350 - Lab-2");
+	ggprint8b(&r, 16, 0x00ffff00, "n A Esc to Exit" );
+	ggprint8b(&r, 16, 0x00ffff00, "n B Speed up");
+
 	//draw the box
 	glPushMatrix();
-	glColor3ub(255, 200, 50); // A lighter orange box 
+	glColor3ub(boxColor[0], boxColor[1], boxColor[2]); // A lighter orange box 
 	//glColor3f(1.0f, 0.65f, 0.0f); // Orange box color
 
 
