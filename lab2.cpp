@@ -1,3 +1,4 @@
+
 //
 //modified by: Bilkeis Alrowhany 
 //date: 1/24/2025
@@ -64,10 +65,11 @@ void render(void);
 
 //Global variables for the box movement since we moved from render to physics... 
 static float w = 20.0f;
-static float dir_x = 0.3f;  // x dir speed
-static float dir_y = 0.20f;  // y dir speed
+static float dir_x = 1.5f;  // x dir speed
+static float dir_y = 1.5f;  // y dir speed
 static float pos[2] = { 0.8f+w, g.yres/2.0f };
 static int boxColor[3] = {100, 120, 220}; // Initial box color
+static bool boxVisabile = true;
 
 
 
@@ -275,6 +277,14 @@ void physics()
 
 	//No physics yet.
     // Update x position
+
+	if (g.xres < (2*w) || g.yres < (2*w)){
+		boxVisabile = false;
+		return;
+	} else {
+		boxVisabile = true; 
+	}
+
     pos[0] += dir_x;
     if (pos[0] >= (g.xres-w)) {
         pos[0] = (g.xres-w);
@@ -333,22 +343,47 @@ void render()// always at bottom  //below should be at physics
 	ggprint8b(&r, 16, 0x00ff0000, "3350 - Lab-2");
 	ggprint8b(&r, 16, 0x00ffff00, "n A Esc to Exit" );
 	ggprint8b(&r, 16, 0x00ffff00, "n B Speed up");
+	if (boxVisabile) {
+		
+			//draw the box
+		glPushMatrix();
+		glColor3ub(boxColor[0], boxColor[1], boxColor[2]); // A lighter orange box 
+		//glColor3f(1.0f, 0.65f, 0.0f); // Orange box color
 
-	//draw the box
-	glPushMatrix();
-	glColor3ub(boxColor[0], boxColor[1], boxColor[2]); // A lighter orange box 
-	//glColor3f(1.0f, 0.65f, 0.0f); // Orange box color
 
+		glTranslatef(pos[0], pos[1], 0.0f);
+		glBegin(GL_TRIANGLES);
+		//float radius = w/1.2; 
+		
+		glVertex2f(-20.0f, 0.0f);
+		glVertex2f(20.0f, 0.0f);
+		glVertex2f(0.0f, 40.0f);
 
-	glTranslatef(pos[0], pos[1], 0.0f);
-	glBegin(GL_QUADS);
-		glVertex2f(-w, -w);
-		glVertex2f(-w,  w);
-		glVertex2f( w,  w);
-		glVertex2f( w, -w);
-	glEnd();
-	glPopMatrix();
+		glVertex2f(-20.0f,0.0f);
+		glVertex2f(-60.0f,-20.0f);
+		glVertex2f(-20.0f,-40.0f);
 
+		glVertex2f(-20.0f,-40.0f);
+		glVertex2f(0.0f, -80.0f);
+		glVertex2f(20.0f, -40.0f);
+
+		glVertex2f(20.0f, -40.0f);
+		glVertex2f(60.0f, -20.0f);
+		glVertex2f(20.0f, 0.0f);
+
+		glVertex2f(-20.0f, 0.0f);
+		glVertex2f(-20.0f,-40.0f);
+		glVertex2f(20.0f, 0.0f);
+
+		glVertex2f(-20.0f,-40.0f);
+		glVertex2f(20.0f, -40.0f);
+		glVertex2f(20.0f, 0.0f);
+			
+		glEnd();
+		glPopMatrix();
+			
+	}
+	
 }
 
 
